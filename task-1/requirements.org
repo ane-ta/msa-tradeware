@@ -1,0 +1,82 @@
+# * Требования
+#   :PROPERTIES:
+#   :ID: all-reqs  <-- создаем стабильный ID для раздела
+#   :CUSTOM_ID: all-reqs
+#   :END:
+
+*** Функциональные
+  :PROPERTIES:
+  :ID: all-functional-reqs  <-- создаем стабильный ID для раздела
+  :CUSTOM_ID: all-functional-reqs
+  :END:
+
+**** REQ-F-0001: Гибкое формирование пайплайнов
+    :PROPERTIES:
+    :ID:       req-f-0001
+    :STATUS:   PROPOSED
+    :TYPE:     FUNCTIONAL
+    :CREATED:  2026-03-15
+    :END:
+    Возможность динамически настраивать шаги обработки, ветвления и зависимости.
+
+**** REQ-F-0002: Мульти-интеграция
+    :PROPERTIES:
+    :ID:       req-f-0002
+    :STATUS:   PROPOSED
+    :TYPE:     FUNCTIONAL
+    :CREATED:  2026-03-15
+    :END:
+    Поддержка из коробки: API, BigQuery, Redshift, Kafka, Spark.
+
+**** REQ-F-0003: Встроенный мониторинг и уведомления
+    :PROPERTIES:
+    :ID:       req-f-0003
+    :STATUS:   PROPOSED
+    :TYPE:     FUNCTIONAL
+    :CREATED:  2026-03-15
+    :END:
+    Встроенное отслеживание статусов выполнения и уведомления при сбоях.
+
+**** Нефункциональные
+  :PROPERTIES:
+  :ID: all-nonfunctional-reqs  <-- создаем стабильный ID для раздела
+  :CUSTOM_ID: all-nonfunctional-reqs
+  :END:
+
+***** REQ-NF-0001: Cloud-Native архитектура
+    :PROPERTIES:
+    :ID:       req-n-0001
+    :TYPE:     NON-FUNCTIONAL
+    :STATUS:   PROPOSED
+    :CREATED:  2026-03-15
+    :END:
+    Применимость в облаке (SaaS/PaaS) или контейнеризированной среде.
+
+***** REQ-NF-0002: Масштабируемость
+    :PROPERTIES:
+    :ID:       req-nf-0002
+    :TYPE:     NON-FUNCTIONAL
+    :STATUS:   PROPOSED
+    :CREATED:  2026-03-15
+    :END:
+    Стабильная обработка ~1 млн записей за один запуск (Batch).
+
+***** REQ-NF-0003: Совместимость данных
+    :PROPERTIES:
+    :ID:       req-nf-0003
+    :TYPE:     NON-FUNCTIONAL
+    :STATUS:   PROPOSED
+    :CREATED:  2026-03-15
+    :END:
+    Работа с CSV, S3, HDFS и реляционными БД (PostgreSQL).
+
+    #+NAME: source_matrix
+    #+CAPTION: Матрица источников данных
+
+| Тип источника | Данные           | Технология            |
+|---------------+------------------+-----------------------|
+| *Файлы*       | Статусы доставок | ~CSV~ / ~S3~ / ~HDFS~ |
+| *БД*          | Заказы и платежи | ~PostgreSQL~          |
+| *Стриминг*    | События          | ~Apache Kafka~        |
+| *Внешние*     | Профили          | ~REST API~ / ~CRM~    |
+

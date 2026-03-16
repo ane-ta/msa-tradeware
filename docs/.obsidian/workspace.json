@@ -1,0 +1,239 @@
+{
+  "main": {
+    "id": "58300349cad1460c",
+    "type": "split",
+    "children": [
+      {
+        "id": "572ae73e957e352b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1ce424a0661a1775",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_system/_templates/ADR Template.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "ADR Template"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "21b263e4bd2613b5",
+    "type": "split",
+    "children": [
+      {
+        "id": "83912091fb58b079",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "786cdcb5708b339e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Файловый менеджер"
+            }
+          },
+          {
+            "id": "9cca3b7cd923afff",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Поиск"
+            }
+          },
+          {
+            "id": "65e2b6b7289c4ac6",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Закладки"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "b5435a512b5278ad",
+    "type": "split",
+    "children": [
+      {
+        "id": "f9d561336d95c9fa",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d4c862dd9c9bd9fb",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "ADR/ADR-001 Пакетная обработка маркетинговых данных.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Обратные ссылки для ADR-001 Пакетная обработка маркетинговых данных"
+            }
+          },
+          {
+            "id": "ecf38021b4ad164b",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "ADR/ADR-001 Пакетная обработка маркетинговых данных.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Исходящие ссылки из ADR-001 Пакетная обработка маркетинговых данных"
+            }
+          },
+          {
+            "id": "3d39b15153765826",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Теги"
+            }
+          },
+          {
+            "id": "ccef52439c609130",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Все свойства"
+            }
+          },
+          {
+            "id": "24ed208324eaafcb",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "_system/_templates/ADR Template.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Структура ADR Template"
+            }
+          },
+          {
+            "id": "e4642dc61fd660a7",
+            "type": "leaf",
+            "pinned": true,
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {},
+              "pinned": true,
+              "icon": "spreadsheet",
+              "title": "Advanced Tables"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 468.5
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Меню быстрого перехода": false,
+      "graph:Граф": false,
+      "canvas:Создать новый холст": false,
+      "daily-notes:Сегодняшняя заметка": false,
+      "templates:Вставить шаблон": false,
+      "command-palette:Открыть палитру команд": false,
+      "bases:Создать новую базу": false,
+      "templater-obsidian:Templater": false,
+      "table-editor-obsidian:Advanced Tables Toolbar": false
+    }
+  },
+  "active": "1ce424a0661a1775",
+  "lastOpenFiles": [
+    "_system/_templates/toggle callout block.md",
+    "_system/_templates/ADR Template.md",
+    "_system/_templates/ADR risk.md",
+    "_system/_templates/ADR disadvantage.md",
+    "_system/_templates/ADR advantage.md",
+    "ADR/ADR-001 Пакетная обработка маркетинговых данных.md",
+    "_system/_logseq/logseq/bak/pages/Tmplt-ADR/2026-03-14T19_12_26.879Z.Desktop.md",
+    "_system/_logseq/logseq/bak/pages/Tmpl-ADR-org/2026-03-14T19_03_51.029Z.Desktop.org",
+    "_system/_logseq/pages/Tmplt-ADR-org.org",
+    "_system/_logseq/logseq/bak/pages/Tmplt-ADR/2026-03-14T19_00_08.249Z.Desktop.md",
+    "_system/_logseq/logseq/bak/pages/Tmplt-ADR",
+    "_system/_logseq/logseq/bak/pages/Tmpl-ADR-org/2026-03-14T18_54_37.647Z.Desktop.org",
+    "_system/_logseq/logseq/bak/pages/Tmpl-ADR-org",
+    "_system/_logseq/pages/Tmpl-Req-org.org",
+    "_system/_logseq/logseq/bak/pages/Test org template/2026-03-14T18_44_47.834Z.Desktop.org",
+    "_system/_logseq/logseq/bak/pages/Test org template",
+    "_system/_logseq/pages/Test org template.org",
+    "_system/_logseq/pages/Tmpl-ADR-org.org",
+    "_system/_logseq/logseq/bak/journals/2026_03_14/2026-03-14T15_34_30.490Z.Desktop.md",
+    "_system/_logseq/pages/ADR.md",
+    "_system/_logseq/logseq/bak/journals/2026_03_14/2026-03-14T15_16_06.738Z.Desktop.md",
+    "_system/_logseq/logseq/bak/journals/2026_03_14/2026-03-14T15_15_37.089Z.Desktop.md",
+    "_system/_logseq/pages/Req.md",
+    "_system/_logseq/pages/NFR-01 Cloud-Native архитектура.md",
+    "_system/_logseq/pages/Req___NFR.md",
+    "_system/_logseq/pages/Req___FR.md",
+    "_system/_logseq/logseq/bak/journals/2026_03_14/2026-03-14T14_14_51.507Z.Desktop.md",
+    "_system/_logseq/logseq/bak/journals/2026_03_14/2026-03-14T14_11_14.420Z.Desktop.md",
+    "_system/_logseq/logseq/bak/journals/2026_03_14/2026-03-14T13_40_59.976Z.Desktop.md",
+    "_system/_logseq/pages/Tmplt-Req.md",
+    "_system/_logseq/pages/Tmplt-ADR.md",
+    "_system/_logseq/pages/Requirements.md",
+    "_system/_logseq/logseq/bak/journals/2026_03_14/2026-03-14T13_01_28.231Z.Desktop.md",
+    "_system/_logseq/pages/Requirements___NFR.md",
+    "_system/_logseq/pages/Requirements___FR.md",
+    "_system/_logseq/pages/[[ADR templates]].md"
+  ]
+}

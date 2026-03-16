@@ -1,0 +1,49 @@
+/* /* 1. Глобальный контейнер для всей секции после HR */ */
+/* .adr-clean .markdown-rendered hr + * { */
+    /* background-color: var(--background-secondary) !important; */
+    /* border-left: 4px solid var(--interactive-accent) !important; */
+    /* margin-top: 0 !important; */
+    /* padding: 20px 24px 10px 24px !important; */
+    /* border-radius: 8px 8px 0 0 !important; */
+/* } */
+
+/* /* 2. Подхватываем ВСЕ элементы между двумя HR */ */
+/* /* Этот селектор говорит: "Любой элемент, у которого есть HR выше в том же блоке" */ */
+/* .adr-clean .markdown-rendered hr ~ *:not(hr) { */
+    /* background-color: var(--background-secondary) !important; */
+    /* border-left: 4px solid var(--interactive-accent) !important; */
+    /* margin-top: 0 !important; */
+    /* margin-bottom: 0 !important; */
+    /* padding-left: 24px !important; */
+    /* padding-right: 24px !important; */
+/* } */
+
+/* /* 3. Закругляем низ последнего элемента перед следующим HR */ */
+/* .adr-clean .markdown-rendered *:has(+ hr), */
+/* .adr-clean .markdown-rendered hr ~ *:last-child { */
+    /* padding-bottom: 20px !important; */
+    /* border-radius: 0 0 8px 8px !important; */
+/* } */
+
+/* /* 4. Стили заголовков внутри этих блоков */ */
+/* .adr-clean .markdown-rendered h3,  */
+/* .adr-clean .markdown-rendered h4 { */
+    /* color: var(--text-accent) !important; */
+    /* border-bottom: none !important; */
+    /* padding-top: 10px !important; */
+/* } */
+
+/* /* 5. Убираем сами линии, превращая их в "воздух" */ */
+/* .adr-clean .markdown-rendered hr { */
+    /* border: none !important; */
+    /* height: 40px !important; /* Расстояние между карточками */ */
+    /* background: transparent !important; */
+    /* margin: 0 !important; */
+/* } */
+
+/* /* 6. Исправляем отступы списков, чтобы буллиты были внутри */ */
+/* .adr-clean .markdown-rendered ul,  */
+/* .adr-clean .markdown-rendered ol { */
+    /* padding-left: 45px !important; */
+    /* margin-bottom: 0 !important; */
+/* } */
