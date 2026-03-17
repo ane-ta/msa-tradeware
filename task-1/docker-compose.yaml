@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  airflow:
+    image: apache/airflow:2.7.1
+    environment:
+      - _PIP_ADDITIONAL_REQUIREMENTS=pandas
+      - AIRFLOW__ADMIN__USERNAME=admin
+      - AIRFLOW__ADMIN__PASSWORD=admin  # Теперь пароль всегда будет "admin"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./data:/opt/airflow/data
+    ports:
+      - "8080:8080"
+    command: standalone
