@@ -1,0 +1,24 @@
+@startuml
+title Эффективный конвейер выгрузки CSV (SQL Join)
+
+
+|Источник (PostgreSQL)|
+start
+:Выполнение SQL Join (4 таблицы);
+note right: SELECT * FROM products \nJOIN client_prices ...
+:Потоковая передача данных (Stream);
+
+
+|Исполнитель (Batch Worker)|
+partition "Транспортировка" {
+    #Silver:Чтение чанка (Buffer);
+    note right: Читаем по 1000 строк\nбез нагрузки на RAM
+    
+    #Gainsboro:Запись в CSV формат;
+}
+
+
+|Место назначения (Storage)|
+:Загрузка CSV в хранилище;
+stop
+@enduml

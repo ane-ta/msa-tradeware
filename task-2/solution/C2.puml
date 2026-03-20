@@ -1,0 +1,38 @@
+@startuml
+title Пакетная обработка
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(client, "B2B clients department", "")
+Person(devops, "Devops in duty", "")
+
+Container_Ext(cntStorage, "Storage", "S3", "Stores result csv files")
+System(k8, " Kubernetes Cluster")
+Container_Boundary(k8,"") {
+
+    System(nmBusiness, " Business namespace")
+    Container_Boundary(nmBusiness,"") {
+        ContainerDb(cntDb, "Prod Db", "PostgreSql", "Actual data records")
+
+        Container(cntWorker, "Price Exporter (CronJob)", "python", "Exports prices for B2B clients.")
+    }
+    System(nmMonitoring, " Monitoring namespace")
+    Container_Boundary(nmMonitoring,"") {
+        Container_Ext(cntGrafana, "Grafana", "", "Provides alerting and monitoring")
+        Container_Ext(cntLoki, "Loki", "", "Stores cluster logs")
+    }
+
+    Rel(cntGrafana, devops, "sendsalert\nif no export result\nat 6:30")
+    Rel(devops, cntGrafana, "views logs")
+    
+    Rel(cntWorker, cntStorage, "saves result\ncsv files\n[HTTPS]")
+    Rel(cntWorker, cntLoki, "logs\n[stdout]")
+    Rel(cntGrafana, cntLoki, "reads logs")
+}
+
+Rel(client, cntStorage, "downloads\npricelists\nin csv")
+Rel(cntWorker, cntDb, "gets\ncurrent data\n[SQL API]")
+
+@enduml

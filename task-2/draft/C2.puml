@@ -1,0 +1,60 @@
+@startuml
+title Пакетная обработка
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(client, "B2B clients department", "")
+Person(devops, "Devops in duty", "")
+
+System_Ext(sysProd, "Online store Prod", "current data")
+Container_Boundary(sysProd,"") {
+    ContainerDb_Ext(cntDb, "Prod Db", "PostgreSql", "actual data records")
+}
+
+System(pipeline, "ETL pipeline")
+Container_Boundary(pipeline,"") {
+    ' functional
+
+    ' infrastructure requirements
+    Container(cntScheduler, "Планировщик", "", "Runs pipeline everyday at 6:00")
+    Container(cntOrqestrator, "Оркестрация", "", "Organizes task sequence")
+
+    Container(cntHealth, "Мониторинг", "", "Controls pipeline healthcheck")
+    Container_Boundary(cntHealth,"") {
+        Component(cntUI, "Metrics/logs", "", "Provides diagnostic info")
+        Component(cntNotificator, "Notification", "", "Sends notifications")
+
+        Lay_Down(cntUI,cntNotificator)
+
+        Rel(cntOrqestrator, cntNotificator, "Initiates notification on errors")
+        Rel_Left(cntNotificator, devops, "sends\nnotification")
+        Rel_Right(devops, cntUI, "administrates\npipeline state")
+    }
+    
+    Container(cntStorage, "Storage", "", "Stores result csv files")
+
+    Container(cntWorker, "Обработка", "", "")
+    Container_Boundary(cntWorker,"") {
+        Component( cntGetData, "Сбор данных", "SQL join запрос")
+        Component( cntFormatData, "Форматирование данных", "формирование csv")
+        Component( cntDeployData, "Доставка данных", "копирование csv")
+        
+        Rel(cntGetData, cntFormatData, "")
+        Rel(cntFormatData, cntDeployData, "")
+        
+        Rel(cntDeployData, cntStorage, "saves result\ncsv files")
+    }
+
+    Rel(cntScheduler, cntOrqestrator, "sends signal\nto start")
+    Rel(cntOrqestrator, cntWorker, "launches")
+}
+
+Lay_Right(cntNotificator,cntUI)
+
+Rel_Left(client, cntStorage, "downloads\npricelists\nin csv")
+Rel_Right(cntGetData, cntDb, "gets\ncurrent data")
+
+
+@enduml
