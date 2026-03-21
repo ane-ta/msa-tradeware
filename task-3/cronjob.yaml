@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: shipping-export-cron
+spec:
+  jobTemplate:
+    metadata:
+      name: shipping-export-cron
+    spec:
+      template:
+        metadata: {}
+        spec:
+          containers:
+          - name: shipping-export-cron
+            image: shipping-exporter:v1
+            imagePullPolicy: Never  
+            env:                    
+            - name: DATABASE_URL
+              value: "postgresql://user:password@postgres-service:5432/analytics"
+            resources: {}
+          restartPolicy: OnFailure
+  schedule: 0 20 * * *
+status: {}
