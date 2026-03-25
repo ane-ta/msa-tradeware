@@ -1,0 +1,45 @@
+@startuml
+title ETL Pipeline: Процесс пакетной обработки
+
+
+|Монолит/UI|
+start
+:Загрузка CSV-отчета сотрудником;
+partition "Шапка" {
+    :Первичная валидация;
+}
+
+if () then (ошибка)
+  #Pink:Отклонено;
+  note right: через UI
+  stop
+else (ок)
+  :Сохранение файла в хранилище;
+endif
+
+
+|Исполнитель|
+partition "Пакетно" {
+    :Глубокая валидация;
+}
+
+if () then (ошибка)
+  |Монолит/UI|
+  #Pink:Отклонено;
+  note right: через оповещение Push/Email/Status
+  stop
+
+else (ок)
+  |Исполнитель|
+endif
+
+partition "Пакетно" {
+    :Обогащение через БД
+    :Запись в БД;
+}
+
+|Монолит/UI|
+#LightGreen:Оповещение об успешном завершении;
+note right: через оповещение Push/Email/Status
+stop
+@enduml
