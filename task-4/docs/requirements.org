@@ -1,8 +1,8 @@
-*** -
-  :PROPERTIES:
-  :ID: all-reqs  <-- создаем стабильный ID для раздела
-  :CUSTOM_ID: all-reqs
-  :END:
+# *** -
+#   :PROPERTIES:
+#   :ID: all-reqs  <-- создаем стабильный ID для раздела
+#   :CUSTOM_ID: all-reqs
+#   :END:
 
 *** Use cases
   :PROPERTIES:
