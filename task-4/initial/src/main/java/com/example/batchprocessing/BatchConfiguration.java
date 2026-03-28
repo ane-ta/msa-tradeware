@@ -12,6 +12,7 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -20,11 +21,35 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @Configuration
 public class BatchConfiguration {
+	@Bean
+	public Job importProductJob(JobRepository jobRepository, Step step1, JobCompletionNotificationListener listener) {
+		return new JobBuilder("importProductJob", jobRepository)
+			.listener(listener)
+			.start(step1)
+			.build();
+	}
+
+	@Value("${batch.chunk.size:10}")
+    private int chunkSize;
+
+	@Bean
+	public Step step1(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
+					  FlatFileItemReader<Product> reader, ProductItemProcessor processor, JdbcBatchItemWriter<Product> writer) {
+		return new StepBuilder("step1", jobRepository)
+			.<Product, Product>chunk(chunkSize, transactionManager)
+			.reader(reader)
+			.processor(processor)
+			.writer(writer)
+			.build();
+	}
 
 	@Bean
 	public FlatFileItemReader<Product> reader() {
 		return new FlatFileItemReaderBuilder<Product>()
-			//todo
+			.name("productItemReader")
+			.resource(new ClassPathResource("product-data.csv"))
+			.delimited()
+			.names("productId", "productSku","productName", "productAmount", "productData")
 			.targetType(Product.class)
 			.build();
 	}
@@ -36,19 +61,11 @@ public class BatchConfiguration {
 
 	@Bean
 	public JdbcBatchItemWriter<Product> writer(DataSource dataSource) {
-		return //todo
-
+		return new JdbcBatchItemWriterBuilder<Product>()
+			.sql("INSERT INTO products (productId, productSku, productName, productAmount, productData) " +
+					"VALUES (:productId, :productSku, :productName, :productAmount, :productData)")
+			.dataSource(dataSource)
+			.beanMapped()
+			.build();
 	}
-
-	@Bean
-	public Job importProductJob(JobRepository jobRepository, Step step1, JobCompletionNotificationListener listener) {
-		return //todo
-	}
-
-	@Bean
-	public Step step1(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
-					  FlatFileItemReader<Product> reader, ProductItemProcessor processor, JdbcBatchItemWriter<Product> writer) {
-		return //todo
-	}
-
 }
