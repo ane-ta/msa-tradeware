@@ -1,0 +1,26 @@
+@startuml
+title Пакетная обработка
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+System_Ext(sysProd, "Объекты прода")
+System_Boundary(sysProd, ""){
+    Container_Ext(cntProd, "Объект прода","Исполняет код")
+    Container_Boundary(cntProd, ""){
+        Component(cntAgent, "Генерация метрик","Создание потока метрик")
+    }
+}
+System(sysMonitoring, "Система сбора метрик")
+System_Boundary(sysMonitoring, ""){
+    Container(cntProcess, "Обработка", "Собирает, агрегирует, сохраняет метрики")
+    Container(cntStorage, "Хранение")
+    Container(cntUI, "Визуализация")
+}
+
+BiRel(cntAgent, cntProcess,"Передача метрик на обработку")
+Rel(cntProcess, cntStorage, "Сохранение метрик")
+Rel(cntStorage, cntUI, "Извлечение метрик")
+@enduml
+
