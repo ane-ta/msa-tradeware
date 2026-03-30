@@ -58,8 +58,8 @@ services:
     container_name: 'filebeat'
     restart: 'unless-stopped'
     volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
-      - '/var/lib/docker/containers:/usr/share/dockerlogs/data:ro'
+      - '/var/run/docker.sock:/var/run/docker.sock'   # позволяет Filebeat добавлять метаданные (например, container.name: my-app) к каждой строчке лога. 
+      - '/var/lib/docker/containers:/usr/share/filebeat/dockerlogs:ro'  # пробрасывает логи контейнера в контейнер Filebeat 
     depends_on:
       - 'elasticsearch'
       - 'logstash'

@@ -1,10 +1,21 @@
 FROM docker.elastic.co/beats/filebeat:7.17.28
 
-# Copy our custom configuration file
-COPY filebeat.yml /usr/share/filebeat/filebeat.yml
+ARG ROOT_PATH=/usr/share/filebeat
+ARG LOGS_STREAM_PATH=/usr/share/filebeat/dockerlogs
 
+# Copy our custom configuration file
+COPY filebeat.yml ${ROOT_PATH}/filebeat.yml
+
+# По умолчанию Filebeat может запускаться от менее привилегированного пользователя, 
+# но для создания папок и изменения прав доступа в системных директориях нужны права суперпользователя.
 USER root
-# Create a directory to map volume with all docker log files
-RUN mkdir /usr/share/filebeat/dockerlogs
-RUN chown -R root /usr/share/filebeat/
-RUN chmod -R go-w /usr/share/filebeat/
+# Сюда через docker-compose ты будешь «пробрасывать» (монтировать) папку с логами твоего Spring Batch приложения, чтобы Filebeat мог их прочитать.
+# не бросает исключение, если папка уже есть, и создает всё дерево родителей.
+RUN mkdir -p ${LOGS_STREAM_PATH} && \    
+    chown -R root ${ROOT_PATH} && \
+    chmod -R go-w ${ROOT_PATH}
+# Filebeat очень строго относится к безопасности. 
+# Он часто отказывается работать, если конфигурационные файлы принадлежат кому-то другому или имеют слишком широкие права на запись.
+
+# Рекурсивно (-R) меняет владельца всех файлов в директории на пользователя root.
+#  Снимает права на запись (-w) для группы (g) и остальных пользователей (o) рекурсивно.
