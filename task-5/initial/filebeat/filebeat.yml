@@ -14,16 +14,16 @@ filebeat.inputs:
 # как их обработать
 processors:
   # decode the log field (sub JSON document) if JSON encoded, then maps it's fields to elasticsearch fields
-  - decode_json_fields:
-      fields: ["log", "message", "msg"]
-      target: ""
+  - decode_json_fields:                 # оборачивает вывод приложения в свой JSON-конверт
+      fields: ["log", "message", "msg"] 
+      target: ""                        # Распаковывает в корень документа Elastic
       # overwrite existing target elasticsearch fields while decoding json fields
-      overwrite_keys: true
-  - add_docker_metadata:
+      overwrite_keys: true              # Если в твоем логе есть поле host и в метаданных Docker есть host, твой лог победит.
+  - add_docker_metadata:                #  добавляет к событию поля: container.name, container.image, container.id.
       # annotates each event with relevant metadata from Docker containers
       host: "unix:///var/run/docker.sock"
   - drop_fields:
-      # drop the fields below in order to have a cleaner
+      # Стек Spring Cloud / Buildpacks часто навешивает на контейнеры огромные лейблы с метаданными сборки
       fields: ["container.labels.io_buildpacks_build_metadata", "container.labels.io_buildpacks_lifecycle_metadata", "container.labels.io_buildpacks_stack_id"]
 
 filebeat.config.modules:
@@ -38,7 +38,7 @@ output.logstash:
 logging.level: info
 logging.to_files: false
 logging.to_syslog: false
-loggins.metrice.enabled: false
+logging.metrice.enabled: false
 logging.files:
   path: /var/log/filebeat
   name: filebeat
