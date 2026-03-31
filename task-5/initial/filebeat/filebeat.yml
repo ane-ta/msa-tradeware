@@ -1,47 +1,36 @@
 # откуда брать данные
 filebeat.inputs:
-  # «Смотри прямо в стандартный вывод (console logs) всех запущенных Docker-контейнеров»
-  - type: container
+  - type: filestream
+    id: docker-logs-aneta 
     enabled: true
-    combine_partial: true   # Если лог-сообщение слишком длинное и Docker разбил его на несколько частей, Filebeat склеит их обратно в одну строку перед отправкой.
     paths:
-      - "/var/lib/docker/containers/*/*.log"  # Это путь внутри контейнера Filebeat, где он ожидает увидеть файлы логов других контейнеров.
-
-    exclude_files: ['\.gz$']              # Если Docker сделал ротацию логов и сжал старые файлы в .gz, Filebeat не будет пытаться их прочитать
-    ignore_older: 100h
+      - "/var/lib/docker/containers/*/*.log"
+    # Этот парсер сам поймет, что это Docker-логи, и вытащит ID контейнера для метаданных
+    parsers:
+      - container: ~
 
 # как их обработать
 processors:
-  # decode the log field (sub JSON document) if JSON encoded, then maps it's fields to elasticsearch fields
-  - decode_json_fields:                 # оборачивает вывод приложения в свой JSON-конверт
-      fields: ["log", "message", "msg"] 
-      target: "aneta_data"                        # Распаковывает в корень документа Elastic
-      # overwrite existing target elasticsearch fields while decoding json fields
-      overwrite_keys: true              # Если в твоем логе есть поле host и в метаданных Docker есть host, твой лог победит.
-  - add_docker_metadata:                #  добавляет к событию поля: container.name, container.image, container.id.
-      # annotates each event with relevant metadata from Docker containers
+  - add_docker_metadata:
       host: "unix:///var/run/docker.sock"
 
-  - drop_fields:
-      # Стек Spring Cloud / Buildpacks часто навешивает на контейнеры огромные лейблы с метаданными сборки
-      fields: ["container.labels.io_buildpacks_build_metadata", "container.labels.io_buildpacks_lifecycle_metadata", "container.labels.io_buildpacks_stack_id"]
+  - decode_json_fields:
+      fields: ["message"] # В filestream + container parser основной лог лежит в message
+      target: ""
+      overwrite_keys: true
 
-filebeat.config.modules:
-  path: ${path.config}/modules.d/*.yml
-  reload.enabled: false
+  - drop_fields:
+      fields: [
+        "container.labels.io_buildpacks_build_metadata", 
+        "container.labels.io_buildpacks_lifecycle_metadata", 
+        "container.labels.io_buildpacks_stack_id",
+        "agent", "log.offset", "input.type" # Чистим лишний мусор 8-ки
+      ]
 
 # куда слать
 output.logstash:
-  hosts: ["logstash"]
+  hosts: ["logstash:5044"]
 
-# Write Filebeat own logs only to file to avoid catching them with itself in docker log files
 logging.level: info
 logging.to_files: false
 logging.to_syslog: false
-logging.metrice.enabled: false
-logging.files:
-  path: /var/log/filebeat
-  name: filebeat
-  keepfiles: 7
-  permissions: 0644
-ssl.verification_mode: none

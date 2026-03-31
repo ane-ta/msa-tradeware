@@ -1,4 +1,4 @@
-FROM docker.elastic.co/beats/filebeat:7.17.28
+FROM docker.elastic.co/beats/filebeat:8.12.0
 
 ARG ROOT_PATH=/usr/share/filebeat
 ARG LOGS_STREAM_PATH=/usr/share/filebeat/dockerlogs
