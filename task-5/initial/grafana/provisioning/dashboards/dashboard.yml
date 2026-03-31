@@ -1,5 +1,6 @@
 apiVersion: 1
 
+# источник файлов, лежит по такому-то пути, обновляй его раз в 5 минут».
 providers:
   - name: 'Prometheus'
     orgId: 1

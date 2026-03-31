@@ -4,9 +4,10 @@ global:
 
 scrape_configs:
 
-  - job_name: 'batch-processing'
+  - job_name: 'batch-processing'          # Идентификатор группы таргетов. В Grafana это будет фильтром job="batch-processing".
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['host.docker.internal:8080']
+      - targets: ['host.docker.internal:8080']  # Это магический адрес Docker Desktop. Он позволяет контейнеру (Prometheus) достучаться до приложения, которое запущено вне Docker
+      # - targets: ['msa-project-5:8080']       # Имя сервиса из твоего compose-файла
         labels:
-          application: batch-processing
+          application: batch-processing         #  Каждая метрика из этого источника получит метку {application="batch-processing"}

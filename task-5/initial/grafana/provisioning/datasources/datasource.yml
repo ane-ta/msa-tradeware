@@ -1,6 +1,6 @@
 apiVersion: 1
 
-datasources:
+datasources:              # Список «строк подключения». Ты можешь добавить сюда и Elastic, и Postgres в этот же массив.
   - name: Prometheus
     type: prometheus
     access: proxy
@@ -9,3 +9,27 @@ datasources:
     basicAuth: false
     isDefault: true
     editable: true
+  
+  - name: Elasticsearch
+    type: elasticsearch
+    url: http://elasticsearch:9200
+    access: proxy
+    database: "filebeat-*" # Маска индекса, которую мы создали
+    jsonData:
+      indexInterval: "Daily"
+      timeField: "@timestamp"
+      esVersion: "7.17.0" # Укажи свою версию для корректных запросов
+      logMessageField: "message"
+      logLevelField: "log.level"
+
+  - name: Postgres-DB
+    type: postgres
+    url: postgres:5432 # Имя сервиса в docker-compose
+    user: ${POSTGRESDB_USER}
+    database: ${POSTGRESDB_DATABASE}
+    secureJsonData:
+      password: ${POSTGRESDB_ROOT_PASSWORD} 
+    jsonData:
+      sslmode: "disable" # Для локальной разработки в Docker
+      postgresVersion: 1300 # Версия 13.x (числом)
+      timescaledb: false

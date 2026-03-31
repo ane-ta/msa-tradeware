@@ -1,27 +1,27 @@
 # откуда брать данные
 filebeat.inputs:
   # «Смотри прямо в стандартный вывод (console logs) всех запущенных Docker-контейнеров»
-  - type: docker
+  - type: container
+    enabled: true
     combine_partial: true   # Если лог-сообщение слишком длинное и Docker разбил его на несколько частей, Filebeat склеит их обратно в одну строку перед отправкой.
-    containers:
-      path: "/usr/share/filebeat/dockerlogs/*/*.log"  # Это путь внутри контейнера Filebeat, где он ожидает увидеть файлы логов других контейнеров.
-      stream: "stdout"                    # только стандартный вывод. Ошибки из stderr в данном случае игнорируются (хотя обычно лучше собирать оба) 
-      ids:
-        - "*"                             # «собирать логи со всех контейнеров», которые видны в указанной папке
+    paths:
+      - "/var/lib/docker/containers/*/*.log"  # Это путь внутри контейнера Filebeat, где он ожидает увидеть файлы логов других контейнеров.
+
     exclude_files: ['\.gz$']              # Если Docker сделал ротацию логов и сжал старые файлы в .gz, Filebeat не будет пытаться их прочитать
-    ignore_older: 10m
+    ignore_older: 100h
 
 # как их обработать
 processors:
   # decode the log field (sub JSON document) if JSON encoded, then maps it's fields to elasticsearch fields
   - decode_json_fields:                 # оборачивает вывод приложения в свой JSON-конверт
       fields: ["log", "message", "msg"] 
-      target: ""                        # Распаковывает в корень документа Elastic
+      target: "aneta_data"                        # Распаковывает в корень документа Elastic
       # overwrite existing target elasticsearch fields while decoding json fields
       overwrite_keys: true              # Если в твоем логе есть поле host и в метаданных Docker есть host, твой лог победит.
   - add_docker_metadata:                #  добавляет к событию поля: container.name, container.image, container.id.
       # annotates each event with relevant metadata from Docker containers
       host: "unix:///var/run/docker.sock"
+
   - drop_fields:
       # Стек Spring Cloud / Buildpacks часто навешивает на контейнеры огромные лейблы с метаданными сборки
       fields: ["container.labels.io_buildpacks_build_metadata", "container.labels.io_buildpacks_lifecycle_metadata", "container.labels.io_buildpacks_stack_id"]
