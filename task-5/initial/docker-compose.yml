@@ -138,10 +138,12 @@ services:
       # - filebeat1
       # - grafana
     image: batch-processing
+    ports:
+      - "8080:8080"
     build:
       context: .
       dockerfile: ./Dockerfile
-    restart: no
+    restart: 'unless-stopped'
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresdb:5432/${POSTGRESDB_DATABASE}
       - SPRING_DATASOURCE_USERNAME=${POSTGRESDB_USER}
