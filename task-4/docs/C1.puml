@@ -1,0 +1,22 @@
+@startuml
+title Пакетная обработка
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(client, "Employee", "Works at regional warehouse")
+Person(admin, "Administrator", "Tracks ETL processes health")
+
+System_Ext(sysProd, "Prod ", "Stores current data")
+
+System(pipeline, "ETL pipeline")
+
+Rel(client, pipeline, "uploads\nwarehouse report\nin csv\nevery day")
+Rel(pipeline, sysProd, "gets\ncurrent data")
+Rel(pipeline, sysProd, "updates\ncurrent data")
+
+Rel_Up(pipeline, admin, "sends\nnotification")
+Rel_Down(admin, pipeline, "administrates\npipelines health statuses")
+
+@enduml

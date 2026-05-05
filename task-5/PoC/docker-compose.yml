@@ -1,0 +1,155 @@
+version: "3.8"
+
+services:
+  postgresdb:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - POSTGRES_USER=$POSTGRESDB_USER
+      - POSTGRES_PASSWORD=$POSTGRESDB_ROOT_PASSWORD
+      - POSTGRES_DB=$POSTGRESDB_DATABASE
+    ports:
+      - $POSTGRESDB_LOCAL_PORT:$POSTGRESDB_DOCKER_PORT
+    deploy:
+      resources:
+        limits:
+          memory: 512M # Для учебного проекта этого за глаза
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - 'postgres_data:/var/lib/postgresql'
+
+  elasticsearch:    # разворачивает базу данных Elasticsearch в режиме «одного узла»
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.17.28'
+    platform: linux/amd64
+    container_name: 'elasticsearch'
+    restart: 'unless-stopped'
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    environment:
+      - 'discovery.type=single-node'     # Без этой строки ES не запустится на одной машине, так как будет вечно ждать «соседей» для создания кластера.
+      - 'xpack.security.enabled=false'    # Отключает логин/пароль и SSL. Важно: Это делает базу открытой
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'  # Выделяет 512 МБ оперативной памяти под кучу Java (Heap)
+    healthcheck:
+      test: 'curl -f http://localhost:9200 || exit 1'
+    volumes:
+      - 'es_data:/usr/share/elasticsearch/data'
+
+  logstash:
+    image: 'docker.elastic.co/logstash/logstash:7.17.28'
+    container_name: 'logstash'
+    restart: 'unless-stopped'
+    environment:
+      LS_JAVA_OPTS: "-Xms256m -Xmx256m" # Минимум и максимум кучи
+    ports:
+      - '5044:5044'
+    volumes:
+      - './logstash/pipeline:/usr/share/logstash/pipeline/:ro'
+    depends_on:
+      - 'elasticsearch'
+    healthcheck:
+      test: 'curl -f http://localhost:9600 || exit 1'
+
+  kibana:
+    image: 'docker.elastic.co/kibana/kibana:7.17.28'  # Важно: Версии Kibana и Elasticsearch должны совпадать (мажорная и минорная части).
+    container_name: 'kibana'
+    restart: 'unless-stopped'
+    ports:
+      - '5601:5601'
+    environment:
+      - 'ELASTICSEARCH_HOSTS=http://elasticsearch:9200'
+      # Node.js heap limit (аналог Xmx в Java). 
+      # синхронизируем лимиты приложения и контейнера.
+      # Для учебного проекта 512MB — "золотая середина". 
+      - 'NODE_OPTIONS=--max-old-space-size=512'   
+    deploy:
+      resources:
+        limits:
+          # Hard Limit: Docker прибьет процесс, если он выйдет за рамки
+          memory: 1G
+        reservations:
+          # Soft Limit: Гарантированный объем памяти
+          memory: 512M
+    depends_on:
+      'elasticsearch':
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5601/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  filebeat:
+    build: 'filebeat'
+    container_name: 'filebeat'
+    user: root
+    privileged: true
+    restart: 'unless-stopped'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'   # позволяет Filebeat добавлять метаданные (например, container.name: my-app) к каждой строчке лога. 
+      - '/var/lib/docker/containers:/var/lib/docker/containers:ro'  # пробрасывает логи контейнера в контейнер Filebeat 
+#      - '/var/lib/docker/containers:/usr/share/filebeat/dockerlogs:ro'  # пробрасывает логи контейнера в контейнер Filebeat 
+    depends_on:
+      - 'elasticsearch'
+      - 'logstash'
+
+  prometheus:
+    image: 'prom/prometheus:v3.4.0'
+    container_name: 'prometheus'
+    restart: 'unless-stopped'
+    volumes:
+      - './prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+      - 'prometheus_data:/prometheus' # Храним метрики здесь
+    ports:
+      - '9090:9090'
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9090" ]
+
+  grafana:
+    image: 'grafana/grafana:12.0.1'
+    container_name: 'grafana'
+    restart: 'unless-stopped'
+    ports:
+      - '3000:3000'
+    environment:
+      - 'GF_USERS_ALLOW_SIGN_UP=false'
+      - GF_PROVISIONING_DATASOURCES_PATH=/etc/grafana/provisioning/datasources
+      - GF_PROVISIONING_DATASOURCES_ALLOW_ENVIRONMENT_SUBSTITUTION=true
+      - POSTGRESDB_USER=${POSTGRESDB_USER}
+      - POSTGRESDB_DATABASE=${POSTGRESDB_DATABASE}
+      - POSTGRESDB_ROOT_PASSWORD=${POSTGRESDB_ROOT_PASSWORD}
+    volumes:
+      - './grafana/provisioning:/etc/grafana/provisioning:ro'
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - 'prometheus'
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "3000" ]
+
+  app:
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+      # - filebeat1
+      # - grafana
+    image: batch-processing
+    ports:
+      - "8080:8080"
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: 'unless-stopped'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresdb:5432/${POSTGRESDB_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRESDB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRESDB_ROOT_PASSWORD}
+  
+volumes:
+  postgres_data:   # Для таблиц Spring Batch и бизнес-данных
+  es_data:         # Для всех собранных логов в Elasticsearch
+  prometheus_data: # Для графиков и метрик

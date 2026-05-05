@@ -1,0 +1,21 @@
+@startuml
+title Пакетная обработка
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(client, "B2B client department", "")
+Person(devops, "Devops in duty", "")
+
+System_Ext(sysProd, "Online store Prod", "Stores current data")
+
+System(pipeline, "ETL pipeline")
+
+Rel(client, pipeline, "downloads\npricelists\nin csv\nevery day")
+Rel(pipeline, sysProd, "gets\ncurrent data")
+
+Rel_Up(pipeline, devops, "sends\nnotification")
+Rel_Down(devops, pipeline, "administrates\npipeline state")
+
+@enduml

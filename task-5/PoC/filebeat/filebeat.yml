@@ -1,0 +1,36 @@
+# откуда брать данные
+filebeat.inputs:
+  - type: filestream
+    id: docker-logs-aneta 
+    enabled: true
+    paths:
+      - "/var/lib/docker/containers/*/*.log"
+    # Этот парсер сам поймет, что это Docker-логи, и вытащит ID контейнера для метаданных
+    parsers:
+      - container: ~
+
+# как их обработать
+processors:
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
+
+  - decode_json_fields:
+      fields: ["message"] # В filestream + container parser основной лог лежит в message
+      target: ""
+      overwrite_keys: true
+
+  - drop_fields:
+      fields: [
+        "container.labels.io_buildpacks_build_metadata", 
+        "container.labels.io_buildpacks_lifecycle_metadata", 
+        "container.labels.io_buildpacks_stack_id",
+        "agent", "log.offset", "input.type" # Чистим лишний мусор 8-ки
+      ]
+
+# куда слать
+output.logstash:
+  hosts: ["logstash:5044"]
+
+logging.level: info
+logging.to_files: false
+logging.to_syslog: false

@@ -1,0 +1,1 @@
+./../export-org.bat ./docs/adr.org ./results/

@@ -1,0 +1,69 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+' Настройка расположения: мониторинг справа
+LAYOUT_LEFT_RIGHT()
+LAYOUT_WITH_LEGEND()
+
+' --- ЛЕВАЯ ЧАСТЬ: БИЗНЕС-ЛОГИКА ---
+System_Boundary(sysProd, "Production Environment") {
+    
+    Person(client, "Сотрудник склада", "Загружает отчеты")
+    
+    Container_Boundary(logic, "Business Logic") {
+        Container(dbServer, "Монолит (WildFly)", "Java") {
+            Component(microm1, "Micrometer SDK")
+        }
+        Container(dbQueue, "GCP Pub/Sub", "Queue")
+        Container(pipeline, "Воркер (Spring Batch)", "Java") {
+            Component(microm2, "Micrometer SDK")
+        }
+    }
+
+    Container_Boundary(data, "Data Layer") {
+        ContainerDb(s3, "GCS", "CSV Storage")
+        ContainerDb(dbWarehouse, "Inventory DB", "PostgreSQL")
+    }
+}
+
+' --- ПРАВАЯ ЧАСТЬ: МОНИТОРИНГ ---
+System_Boundary(sysMonitoring, "Observability & Control") {
+    Person(admin, "Администратор", "Мониторинг")
+    
+    Container(cntOTel, "OTel Collector", "Go", "Единый шлюз данных")
+    
+    Container_Boundary(storage, "Metrics & Logs Store") {
+        Container(cntLoki, "Loki", "Logs")
+        Container(cntProm, "Prometheus", "Metrics")
+    }
+    Container(cntUI, "Grafana", "Dashboard")
+}
+
+' --- БИЗНЕС-СВЯЗИ (Сверху вниз слева) ---
+Rel(client, dbServer, "Загрузка CSV")
+Rel(dbServer, s3, "Save CSV")
+Rel(dbServer, dbQueue, "Notify")
+Rel(dbQueue, pipeline, "Pull Task")
+Rel(pipeline, dbWarehouse, "Update DB")
+Rel(pipeline, s3, "Read CSV")
+
+' --- СВЯЗИ МОНИТОРИНГА (Слева направо в OTel) ---
+Rel(microm1, cntOTel, "OTLP (Push/Pull)")
+Rel(microm2, cntOTel, "OTLP (Push)")
+
+' --- ВНУТРЕННИЕ СВЯЗИ МОНИТОРИНГА (Сверху вниз справа) ---
+Rel(cntOTel, cntLoki, "Logs")
+Rel(cntOTel, cntProm, "Metrics")
+Rel(cntUI, cntLoki, "Query")
+Rel(cntUI, cntProm, "Query")
+Rel(admin, cntUI, "Watch", "HTTPS")
+Rel(admin, pipeline, "Control", "REST")
+
+' Сброс логов в облако
+Rel(cntLoki, s3, "Archive", "S3 API")
+
+' Выравнивание (чтобы мониторинг был справа)
+logic -[hidden]R- sysMonitoring
+
+@enduml
+

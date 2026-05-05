@@ -1,0 +1,80 @@
+@startuml
+title Пакетная обработка
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+' Person(client, "Employee", "Works at regional warehouse")
+' Person(admin, "Administrator", "Tracks ETL processes health")
+
+' System_Boundary(sysProd, "Production Environment") {
+    
+'     ' Слой логики
+'     Container(dbServer, "Монолит", "WildFly/Java", "Первичная валидация.\nРегистрация отчета")
+'     Container(dbQueue, "GCP Pub/Sub", "Managed service", "Шина обмена сообщениями (Async)")
+    
+'     Container_Boundary(pipelineS, "ETL Pipeline") {
+'         Container(pipeline, "Воркер", "Java Spring Batch", "Глубокая валидация, обогащение и запись")
+'         ContainerDb(pipelineDb, "Job Repository", "PostgreSql", "Метаданные и чекпоинты")
+'     }
+
+'     ' Слой данных (внизу)
+'     System_Boundary(storage, "Data Layer") {
+'         ContainerDb_Ext(s3, "Файловое хранилище", "GCS", "Архив CSV")
+'         ContainerDb_Ext(dbCatalog, "БД справочников", "PostgreSql", "Характеристики, промо")
+'         ContainerDb_Ext(dbWarehouse, "БД номенклатуры", "PostgreSql", "Остатки товаров")
+'     }
+' }
+
+' ' 1. Пользователи -> Монолит
+' Rel_D(client, dbServer, "1. Загружает CSV", "HTTPS/REST")
+' Rel_D(admin, pipeline, "Управляет (Restart)", "REST API")
+
+' ' 2. Монолит -> Хранилище и Очередь
+' Rel_D(dbServer, s3, "2. Сохраняет файл", "S3 API (HTTPS)")
+' Rel_R(dbServer, dbQueue, "3a. Публикует событие", "gRPC / HTTPS")
+
+' ' 3. Очередь -> Воркер
+' Rel_R(dbQueue, pipeline, "3b. Подписка на задачи", "gRPC / Pull")
+
+' ' 4. Воркер -> Данные
+' Rel_D(pipeline, s3, "4. Стриминг файла", "HTTPS / S3 REST STREAMING API")
+' Rel_D(pipeline, dbCatalog, "5. Обогащение", "JDBC / SQL")
+' Rel_D(pipeline, dbWarehouse, "6. Обновление", "JDBC / SQL (Batch)")
+
+' ' 5. Внутренние метаданные воркера
+' Rel_R(pipeline, pipelineDb, "7. Чекпоинты", "JDBC / SQL")
+
+' ' 6. Обратная связь через очередь
+' Rel_L(pipeline, dbQueue, "8a. Статус обработки", "gRPC / HTTPS")
+' Rel_L(dbQueue, dbServer, "8b. Получение статусов", "gRPC / Pull")
+
+' ' 7. Оповещения пользователям
+' Rel_U(dbServer, client, "Оповещение (Push)", "WebSocket")
+' Rel_U(dbServer, admin, "Алерты", "Email/Dashboard")
+
+' ' --- ВЫРАВНИВАНИЕ (Скрытые распорки) ---
+' client -[hidden]R- admin
+' dbServer -[hidden]R- dbQueue
+' dbQueue -[hidden]R- pipeline
+' dbServer -[hidden]D- s3
+' pipeline -[hidden]D- dbWarehouse
+System_Ext(sysProd, "Объекты прода")
+System_Boundary(sysProd, ""){
+    Container_Ext(cntProd, "Объект прода","пишет логи локально")
+    Container(cntAgent, "Сбор логов","Имеет доступ к локальному потоку логов")
+}
+System(sysMonitoring, "Система сбора метрик и логов")
+System_Boundary(sysMonitoring, ""){
+    Container(cntProcess, "Обработка логов", "Собирает, структрурирует, сохраняет логи")
+    Container(cntStorage, "Хранение логов")
+    Container(cntUI, "Визуализация")
+}
+
+BiRel(cntAgent, cntProd, "Создание потока логов")
+BiRel(cntAgent, cntProcess,"Передача логов на обработку")
+Rel(cntProcess, cntStorage, "Сохранение логов")
+Rel(cntStorage, cntUI, "Поставка логов для визуалиации и анализа")
+@enduml
+
