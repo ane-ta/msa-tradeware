@@ -1,3 +1,3 @@
-xcopy /y "Dockerfile" ".\results\"
-xcopy /y "cronjob.yaml" ".\results\"
-xcopy /y "job.yaml" ".\results\"
+xcopy /y ".\PoC\Dockerfile" ".\results\"
+xcopy /y ".\PoC\cronjob.yaml" ".\results\"
+xcopy /y ".\PoC\job.yaml" ".\results\"

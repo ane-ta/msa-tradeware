@@ -1,1 +1,1 @@
-./../export-org.bat adr.org ./results/
+./../export-org.bat ./docs/adr.org ./results/
