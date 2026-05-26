@@ -1,0 +1,109 @@
+version: '3'
+
+includes:
+  arh:
+    taskfile: ./arch-tooling/scripts/Taskfile.yml
+    flatten: true
+
+vars:
+  TASK_RESULT_REL_DIR: '{{"./results"}}'
+
+tasks:
+  desc: "TradeWare - export documents for tasks"
+  tradeware:export:
+    cmds:
+      - task: tradeware:export:task1
+      - task: tradeware:export:task2
+      - task: tradeware:export:task3
+      - task: tradeware:export:task4
+      - task: tradeware:export:task5
+
+# =====================
+  tradeware:export:task1:
+    vars:
+      TASK_DIR:         '{{joinPath .ROOT_DIR "task-1" }}'
+    cmds:
+      - task: tradeware:task_org_to_md
+        vars:
+          TASK_DIR: '{{.TASK_DIR }}'
+
+# =====================  
+  tradeware:export:task2:
+    vars:
+      TASK_DIR:         '{{joinPath .ROOT_DIR "task-2" }}'
+      TASK_RESULT_DIR:  '{{joinPath .TASK_DIR .TASK_RESULT_REL_DIR }}'
+    dir: '{{.TASK_DIR}}'
+    sources:
+      - 'docs/C2.puml'
+    cmds:
+      - task: tradeware:task_org_to_md
+        vars:
+          TASK_DIR: '{{.TASK_DIR}}'
+      - for: sources
+        cmd: |
+          cp "{{ .ITEM}}" "{{.TASK_RESULT_DIR}}"
+          echo copied - {{.ITEM | toSlash}}
+
+# =====================
+  tradeware:export:task3:
+    vars:
+      TASK_DIR:         '{{joinPath .ROOT_DIR "task-3" }}'
+      TASK_RESULT_DIR:  '{{joinPath .TASK_DIR .TASK_RESULT_REL_DIR }}'
+    dir: '{{.TASK_DIR}}'
+    sources:
+      - 'PoC/Dockerfile'
+      - 'PoC/cronjob.yaml'
+      - 'PoC/job.yaml'
+    cmds:
+      - for: sources
+        cmd: |
+          cp "{{ .ITEM}}" "{{.TASK_RESULT_DIR}}"
+          echo copied - {{.ITEM | toSlash}}
+
+# =====================
+  tradeware:export:task4:
+    vars:
+      TASK_DIR:         '{{joinPath .ROOT_DIR "task-4" }}'
+      TASK_RESULT_DIR:  '{{joinPath .TASK_DIR .TASK_RESULT_REL_DIR }}'
+    dir: '{{.TASK_DIR}}'
+    sources:
+      - 'docs/C2.puml'
+    cmds:
+      - task: tradeware:task_org_to_md
+        vars:
+          TASK_DIR: '{{.TASK_DIR}}'
+
+      - for: sources
+        cmd: |
+          cp "{{ .ITEM}}" "{{.TASK_RESULT_DIR}}"
+          echo copied - {{.ITEM | toSlash}}
+
+# =====================
+  tradeware:export:task5:
+    vars:
+      TASK_DIR:         '{{joinPath .ROOT_DIR "task-5" }}'
+      TASK_RESULT_DIR:  '{{joinPath .TASK_DIR .TASK_RESULT_REL_DIR }}'
+    dir: '{{.TASK_DIR}}'
+    sources:
+      - 'docs/С2-to-be.pum'
+
+    cmds:
+      - task: tradeware:task_org_to_md
+        vars:
+          TASK_DIR: '{{.TASK_DIR}}'
+
+      - for: sources
+        cmd: |
+          cp "{{ .ITEM}}" "{{.TASK_RESULT_DIR}}"
+          echo copied - {{.ITEM | toSlash}}
+
+# =====================
+  tradeware:task_org_to_md:
+    requires:
+      vars:
+        [TASK_DIR] 
+    cmds:
+      - task: org-to-md:docker:render_tree
+        vars:
+          SOURCE_DIR: '{{joinPath .TASK_DIR "docs" }}'
+          DEST_DIR:   '{{joinPath .TASK_DIR "results" }}'
